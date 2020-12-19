@@ -29,6 +29,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.impl.Logger;
 import org.slf4j.impl.StaticLoggerBinder;
@@ -80,7 +82,11 @@ public class CommandManager extends DManager<String, Command> implements EventLi
                     continue;
                 }
                 try {
-                    CommandContext context = new CommandContext((MessageReceivedEvent) event, raw);
+                    CommandLine cliArgument = null;
+                    if (command.getArguments() != null) {
+                        cliArgument = new DefaultParser().parse(command.getArguments(), raw.split(" "));
+                    }
+                    CommandContext context = new CommandContext((MessageReceivedEvent) event, raw, cliArgument);
                     command.execute(context).execute(((MessageReceivedEvent) event).getMessage());
 
                     event.getJDA().getEventManager().handle(new CommandExecuted(event.getJDA(), command, context));
