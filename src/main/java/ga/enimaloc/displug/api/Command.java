@@ -21,6 +21,7 @@ package ga.enimaloc.displug.api;
 import ga.enimaloc.displug.internal.command.CommandContext;
 import ga.enimaloc.displug.internal.command.CommandResult;
 import ga.enimaloc.displug.internal.objects.Permissible;
+import org.apache.commons.cli.Options;
 
 @SuppressWarnings({"SameReturnValue", "RedundantThrows"})
 public interface Command extends Permissible {
@@ -36,6 +37,10 @@ public interface Command extends Permissible {
     }
 
     default Category[] getCategory() {
+        return null;
+    }
+
+    default Options getArguments() {
         return null;
     }
 

@@ -22,15 +22,18 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.cli.CommandLine;
 
 public class CommandContext {
 
-    private final String arguments;
     private final MessageReceivedEvent event;
+    private final String arguments;
+    private final CommandLine cliArgument;
 
-    public CommandContext(MessageReceivedEvent event, String arguments) {
+    public CommandContext(MessageReceivedEvent event, String arguments, CommandLine cliArgument) {
         this.event = event;
         this.arguments = arguments;
+        this.cliArgument = cliArgument;
     }
 
     public MessageReceivedEvent getEvent() {
@@ -55,5 +58,9 @@ public class CommandContext {
 
     public String[] getSplitArguments() {
         return arguments.split(" ");
+    }
+
+    public CommandLine getCliArgument() {
+        return cliArgument;
     }
 }
