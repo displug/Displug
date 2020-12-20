@@ -21,7 +21,6 @@ package com.github.displug.displug.internal.managers;
 import com.github.displug.displug.api.Command;
 import com.github.displug.displug.api.Displug;
 import com.github.displug.displug.api.events.command.CommandExecuted;
-import com.github.displug.displug.api.events.command.CommandRegister;
 import com.github.displug.displug.internal.DisplugImpl;
 import com.github.displug.displug.internal.command.CommandContext;
 import java.util.Arrays;
@@ -52,7 +51,6 @@ public class CommandManager extends DManager<String, Command> implements EventLi
         for (String alias : command.getAliases()) {
             super.add(alias, command);
         }
-        displug.getJDA().getEventManager().handle(new CommandRegister(displug.getJDA(), command));
     }
 
     public void remove(Command command) {
