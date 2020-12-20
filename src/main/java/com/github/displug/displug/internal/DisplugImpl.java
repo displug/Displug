@@ -64,9 +64,9 @@ public class DisplugImpl implements Displug {
     private void setupConfiguration() {
         if (!Configuration.DEFAULT_CONFIGURATION_FILE.exists()) {
             int createTry = 0;
-            while (!Configuration.DEFAULT_CONFIGURATION_FILE.getParentFile().mkdirs()) {
+            while (!Configuration.DEFAULT_CONFIGURATION_FILE.getParentFile().mkdirs() && !Configuration.DEFAULT_CONFIGURATION_FILE.getParentFile().exists()) {
                 createTry++;
-                if (createTry <= 5) {
+                if (createTry >= 5) {
                     ExitCode.CONFIGURATION_RELATED.exit(
                             logger,
                             ExitCode.Level.ERROR,
