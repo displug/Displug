@@ -22,6 +22,7 @@ import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
 import java.io.File;
 import java.io.IOException;
+import org.slf4j.event.Level;
 import org.slf4j.impl.Logger;
 import org.slf4j.impl.StaticLoggerBinder;
 
@@ -54,6 +55,7 @@ public class Configuration {
         Bot _default = new Bot();
         _default.prefix = new String[]{"!"};
         _default.token = "Insert your token here";
+        _default.logLevel = Level.INFO;
         return _default;
     }
 
@@ -80,5 +82,6 @@ public class Configuration {
     public static class Bot {
         public String[] prefix;
         String token;
+        Level logLevel;
     }
 }
