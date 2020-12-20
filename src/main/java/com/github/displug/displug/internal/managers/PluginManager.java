@@ -71,18 +71,16 @@ public class PluginManager extends SManager<Displugin> {
                 }
                 logger.trace("Loading {}...", file.getName());
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{file.toURI().toURL()});
-                InputStream pluginInfoInputStream = classLoader.getResourceAsStream("plugin.yml");
+                InputStream pluginInfoInputStream = classLoader.getResourceAsStream("plugin.toml");
                 if (pluginInfoInputStream == null) {
-                    throw new PluginException("Can't find plugin.yml in jar");
+                    throw new PluginException("Can't find plugin.toml in jar");
                 }
                 Map<String, Object> pluginInfo = new Toml().read(pluginInfoInputStream).toMap();
                 String name = (String) pluginInfo.get("name");
                 String main = (String) pluginInfo.get("main");
-                String author = (String) pluginInfo.get("author");
                 String version = (String) pluginInfo.get("version");
                 Objects.requireNonNull(name);
                 Objects.requireNonNull(main);
-                Objects.requireNonNull(author);
                 Objects.requireNonNull(version);
                 Class<?> mainClass = classLoader.loadClass(main);
                 if (!Displugin.class.isAssignableFrom(mainClass)) {
@@ -108,7 +106,7 @@ public class PluginManager extends SManager<Displugin> {
             } catch (IllegalAccessException e) {
                 throw new PluginException("Can't access to plugin constructor", e);
             } catch (Exception e) {
-                throw new PluginException("???", e);
+                throw new PluginException(e.getMessage(), e);
             }
         } catch (PluginException pluginException) {
             ExitCode.PLUGIN_RELATED.exit(logger, "Error while loading " + file.getName(), pluginException);
