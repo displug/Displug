@@ -13,7 +13,6 @@ ij_formatter_off_tag = @formatter:off
 ij_formatter_on_tag = @formatter:on
 ij_formatter_tags_enabled = false
 ij_smart_tabs = false
-ij_visual_guides = none
 ij_wrap_on_typing = false
 
 [*.java]
@@ -241,7 +240,6 @@ ij_java_spaces_within_if_parentheses = false
 ij_java_spaces_within_method_call_parentheses = false
 ij_java_spaces_within_method_parentheses = false
 ij_java_spaces_within_parentheses = false
-ij_java_spaces_within_record_header = false
 ij_java_spaces_within_switch_parentheses = false
 ij_java_spaces_within_synchronized_parentheses = false
 ij_java_spaces_within_try_parentheses = false
