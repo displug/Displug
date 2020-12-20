@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.slf4j.event.Level;
 import org.slf4j.impl.Logger;
 import org.slf4j.impl.StaticLoggerBinder;
 
@@ -64,9 +65,9 @@ public class DisplugImpl implements Displug {
     private void setupConfiguration() {
         if (!Configuration.DEFAULT_CONFIGURATION_FILE.exists()) {
             int createTry = 0;
-            while (!Configuration.DEFAULT_CONFIGURATION_FILE.getParentFile().mkdirs()) {
+            while (!Configuration.DEFAULT_CONFIGURATION_FILE.getParentFile().mkdirs() && !Configuration.DEFAULT_CONFIGURATION_FILE.getParentFile().exists()) {
                 createTry++;
-                if (createTry <= 5) {
+                if (createTry >= 5) {
                     ExitCode.CONFIGURATION_RELATED.exit(
                             logger,
                             ExitCode.Level.ERROR,
@@ -83,6 +84,7 @@ public class DisplugImpl implements Displug {
             ExitCode.CONFIGURATION_RELATED.exit(logger, ExitCode.Level.INFO, "A new configuration file was created please modify it!");
         }
         configuration.load();
+        StaticLoggerBinder.getSingleton().getLoggerFactory().getLogger("ROOT").setLevel(configuration.bot.logLevel == null ? Level.INFO : configuration.bot.logLevel);
     }
 
     private void setupPlugins() {
