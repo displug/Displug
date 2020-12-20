@@ -19,7 +19,6 @@
 package com.github.displug.displug.internal.managers;
 
 import com.github.displug.displug.api.Displug;
-import com.github.displug.displug.api.events.plugin.PluginLoaded;
 import com.github.displug.displug.internal.DisplugImpl;
 import com.github.displug.displug.internal.ExitCode;
 import com.github.displug.displug.internal.exception.PluginException;
@@ -88,7 +87,6 @@ public class PluginManager extends SManager<Displugin> {
                 }
                 Displugin plugin = (Displugin) mainClass.getConstructor(Displug.class).newInstance(displug);
                 ((DisplugImpl) displug).getRequiredPermission().addAll(Arrays.asList(plugin.getPermissions()));
-                displug.getJDA().getEventManager().handle(new PluginLoaded(displug.getJDA(), plugin));
                 plugin.onLoad();
                 add(plugin);
             } catch (MalformedURLException e) {
