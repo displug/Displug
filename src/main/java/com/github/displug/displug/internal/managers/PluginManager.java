@@ -19,6 +19,7 @@
 package com.github.displug.displug.internal.managers;
 
 import com.github.displug.displug.api.Displug;
+import com.github.displug.displug.api.events.plugin.PluginLoaded;
 import com.github.displug.displug.internal.DisplugImpl;
 import com.github.displug.displug.internal.ExitCode;
 import com.github.displug.displug.internal.exception.PluginException;
@@ -70,16 +71,18 @@ public class PluginManager extends SManager<Displugin> {
                 }
                 logger.trace("Loading {}...", file.getName());
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{file.toURI().toURL()});
-                InputStream pluginInfoInputStream = classLoader.getResourceAsStream("plugin.toml");
+                InputStream pluginInfoInputStream = classLoader.getResourceAsStream("plugin.yml");
                 if (pluginInfoInputStream == null) {
-                    throw new PluginException("Can't find plugin.toml in jar");
+                    throw new PluginException("Can't find plugin.yml in jar");
                 }
                 Map<String, Object> pluginInfo = new Toml().read(pluginInfoInputStream).toMap();
                 String name = (String) pluginInfo.get("name");
                 String main = (String) pluginInfo.get("main");
+                String author = (String) pluginInfo.get("author");
                 String version = (String) pluginInfo.get("version");
                 Objects.requireNonNull(name);
                 Objects.requireNonNull(main);
+                Objects.requireNonNull(author);
                 Objects.requireNonNull(version);
                 Class<?> mainClass = classLoader.loadClass(main);
                 if (!Displugin.class.isAssignableFrom(mainClass)) {
@@ -87,6 +90,7 @@ public class PluginManager extends SManager<Displugin> {
                 }
                 Displugin plugin = (Displugin) mainClass.getConstructor(Displug.class).newInstance(displug);
                 ((DisplugImpl) displug).getRequiredPermission().addAll(Arrays.asList(plugin.getPermissions()));
+                displug.getJDA().getEventManager().handle(new PluginLoaded(displug.getJDA(), plugin));
                 plugin.onLoad();
                 add(plugin);
             } catch (MalformedURLException e) {
@@ -104,7 +108,7 @@ public class PluginManager extends SManager<Displugin> {
             } catch (IllegalAccessException e) {
                 throw new PluginException("Can't access to plugin constructor", e);
             } catch (Exception e) {
-                throw new PluginException(e.getMessage(), e);
+                throw new PluginException("???", e);
             }
         } catch (PluginException pluginException) {
             ExitCode.PLUGIN_RELATED.exit(logger, "Error while loading " + file.getName(), pluginException);
