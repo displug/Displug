@@ -43,7 +43,7 @@ tasks.withType(JavaCompile) {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'ga.enimaloc.displug.internal.Main'
+            'Main-Class': 'com.github.displug.displug.internal.Main'
         )
     }
 }
