@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020,
+ * Copyright (c) 2021,
  * Displug team(https://github.com/orgs/displug/people)
  * and collaborator(https://github.com/displug/Displug/graphs/contributors)
  * All Right Reserved.
@@ -42,6 +42,10 @@ public interface Command extends Permissible {
 
     default Options getArguments() {
         return null;
+    }
+
+    default boolean isSlashCommand() {
+        return false;
     }
 
     CommandResult execute(CommandContext context) throws Exception;

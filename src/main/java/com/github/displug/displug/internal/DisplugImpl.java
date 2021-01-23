@@ -20,10 +20,11 @@ package com.github.displug.displug.internal;
 
 import com.github.displug.displug.api.Command;
 import com.github.displug.displug.api.Displug;
-import com.github.displug.displug.api.events.plugin.PluginStarted;
+import com.github.displug.displug.api.events.EventListener;
 import com.github.displug.displug.internal.managers.CommandManager;
 import com.github.displug.displug.internal.managers.EventManager;
 import com.github.displug.displug.internal.managers.PluginManager;
+import com.github.displug.displug.internal.modified.JDABuilder;
 import com.github.displug.displug.plugin.Displugin;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,7 +100,8 @@ public class DisplugImpl implements Displug {
         List<GatewayIntent> intents = new ArrayList<>();
         pluginManager.all().forEach(plugin -> intents.addAll(Arrays.asList(plugin.getIntents())));
         try {
-            jda = JDABuilder.create(configuration.bot.token, intents).setEventManager(new EventManager()).addEventListeners(commandManager).build();
+            jda = new JDABuilder(configuration.bot.token, GatewayIntent.getRaw(intents)).setEventManager(new EventManager()).addEventListeners(commandManager, new EventListener()).setRawEventsEnabled(true).build();
+            commandManager.syncWithDiscord();
         } catch (LoginException e) {
             ExitCode.JDA_RELATED.exit(logger, e);
         }

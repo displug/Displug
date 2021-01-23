@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020,
+ * Copyright (c) 2021,
  * Displug team(https://github.com/orgs/displug/people)
  * and collaborator(https://github.com/displug/Displug/graphs/contributors)
  * All Right Reserved.
@@ -20,10 +20,13 @@ package com.github.displug.displug.api.events;
 
 import com.github.displug.displug.api.events.command.CommandExecuted;
 import com.github.displug.displug.api.events.command.CommandRegister;
+import com.github.displug.displug.api.events.interaction.InteractionCreatedEvent;
 import com.github.displug.displug.api.events.plugin.PluginLoaded;
 import com.github.displug.displug.api.events.plugin.PluginStarted;
 import com.github.displug.displug.api.events.plugin.PluginStopped;
+import com.github.displug.displug.internal.entity.ApplicationCommand;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.RawGatewayEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +45,9 @@ public class EventListener extends ListenerAdapter {
     }
 
     public void onCommandExecuted(CommandExecuted event) {
+    }
+
+    public void onInteractionCreated(InteractionCreatedEvent event) {
     }
 
     @Override
@@ -63,6 +69,23 @@ public class EventListener extends ListenerAdapter {
             onCommandExecuted((CommandExecuted) event);
         }
 
+        // Interaction related
+        if (event instanceof InteractionCreatedEvent) {
+            onInteractionCreated((InteractionCreatedEvent) event);
+        }
+
+        // Gateway related
+        if (event instanceof RawGatewayEvent) {
+            onGatewayMessage((RawGatewayEvent) event);
+        }
+
         super.onGenericEvent(event);
+    }
+
+    private void onGatewayMessage(RawGatewayEvent event) {
+        if (!"INTERACTION_CREATE".equals((event).getType())) {
+            return;
+        }
+        event.getJDA().getEventManager().handle(new InteractionCreatedEvent(event.getResponseNumber(), new ApplicationCommand(event.getPayload(), event.getJDA())));
     }
 }

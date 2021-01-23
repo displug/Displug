@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020,
+ * Copyright (c) 2021,
  * Displug team(https://github.com/orgs/displug/people)
  * and collaborator(https://github.com/displug/Displug/graphs/contributors)
  * All Right Reserved.
@@ -18,21 +18,40 @@
  */
 package com.github.displug.displug.internal.command;
 
+import com.github.displug.displug.internal.entity.InteractionResponse;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import net.dv8tion.jda.api.entities.Emote;
-import net.dv8tion.jda.api.entities.Message;
 
 public enum CommandResult {
 
-    REPLY((message, input) -> message.getChannel().sendMessage(input.toString()).queue()),
-    REACT_UNICODE   ((message, input) -> message.addReaction((String) input).queue()),
-    REACT_EMOTE     ((message, input) -> message.addReaction((Emote) input).queue());
+    REPLY((context, input) -> {
+        if (context.isInteraction()) {
+            context.getInteractionCreatedEvent().sendResponse(
+                    new InteractionResponse(InteractionResponse.Type.CHANNEL_MESSAGE_WITH_SOURCE,
+                            new InteractionResponse.Callback.Builder().setContent(input.toString()).build()
+                    )
+            );
+        } else {
+            context.getChannel().sendMessage(input.toString()).queue();
+        }
+    }),
+    REACT_UNICODE((context, input) -> {
+        if (!context.isInteraction()) {
+            Objects.requireNonNull(context.getMessage()).addReaction((String) input).queue();
+        }
+    }),
+    REACT_EMOTE((context, input) -> {
+        if (!context.isInteraction()) {
+            Objects.requireNonNull(context.getMessage()).addReaction((Emote) input).queue();
+        }
+    });
 
-    private final BiConsumer<Message, Object> action;
+    private final BiConsumer<CommandContext, Object> action;
     private Object input;
     private CommandResult next;
 
-    CommandResult(BiConsumer<Message, Object> action) {
+    CommandResult(BiConsumer<CommandContext, Object> action) {
         this.action = action;
     }
 
@@ -41,10 +60,10 @@ public enum CommandResult {
         return this;
     }
 
-    public void execute(Message message) {
-        action.accept(message, input);
+    public void execute(CommandContext context) {
+        action.accept(context, input);
         if (next != null) {
-            next.execute(message);
+            next.execute(context);
         }
     }
 

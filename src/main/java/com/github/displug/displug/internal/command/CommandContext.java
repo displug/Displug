@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020,
+ * Copyright (c) 2021,
  * Displug team(https://github.com/orgs/displug/people)
  * and collaborator(https://github.com/displug/Displug/graphs/contributors)
  * All Right Reserved.
@@ -18,38 +18,66 @@
  */
 package com.github.displug.displug.internal.command;
 
+import com.github.displug.displug.api.events.interaction.InteractionCreatedEvent;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.cli.CommandLine;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class CommandContext {
 
-    private final MessageReceivedEvent event;
+    private final @NotNull GenericEvent event;
     private final String arguments;
     private final CommandLine cliArgument;
 
-    public CommandContext(MessageReceivedEvent event, String arguments, CommandLine cliArgument) {
+    public CommandContext(@NotNull GenericEvent event, String arguments, CommandLine cliArgument) {
         this.event = event;
         this.arguments = arguments;
         this.cliArgument = cliArgument;
     }
 
-    public MessageReceivedEvent getEvent() {
+    public @NotNull GenericEvent getGenericEvent() {
         return event;
     }
 
+    public boolean isInteraction() {
+        return event instanceof InteractionCreatedEvent;
+    }
+
+    public @NotNull InteractionCreatedEvent getInteractionCreatedEvent() {
+        if (!isInteraction()) {
+            throw new ClassCastException("This command was not executed from interaction");
+        }
+        return (InteractionCreatedEvent) event;
+    }
+
+    public @NotNull MessageReceivedEvent getMessageReceivedEvent() {
+        if (isInteraction()) {
+            throw new ClassCastException("This command was not executed from message");
+        }
+        return (MessageReceivedEvent) event;
+    }
+
     public ChannelType getType() {
-        return event.getChannelType();
+        return isInteraction() ? getInteractionCreatedEvent().getInteraction().getTextChannel().getType() : getMessageReceivedEvent().getChannelType();
     }
 
     public User getAuthor() {
-        return event.getAuthor();
+        return isInteraction() ? getInteractionCreatedEvent().getInteraction().getMember().getUser() : getMessageReceivedEvent().getAuthor();
     }
 
+    @Nullable
     public Message getMessage() {
-        return event.getMessage();
+        return isInteraction() ? null : getMessageReceivedEvent().getMessage();
+    }
+
+    public TextChannel getChannel() {
+        return isInteraction() ? getInteractionCreatedEvent().getInteraction().getTextChannel() : getMessageReceivedEvent().getTextChannel();
     }
 
     public String getArguments() {
