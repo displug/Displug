@@ -23,7 +23,6 @@ import com.github.displug.displug.internal.entity.ApplicationCommand;
 import java.io.IOException;
 import java.util.*;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.internal.requests.Route;
 import net.dv8tion.jda.internal.utils.tuple.MutablePair;
@@ -40,8 +39,8 @@ public class RequestUtils {
         return getAlreadyRegisteredCommand(makeRequest(jda, Route.get(String.format("applications/%s/commands", jda.getSelfUser().getId())).compile(), null));
     }
 
-    public static List<ApplicationCommand.CommandData> getAlreadyRegisteredCommand(Guild guild) {
-        return getAlreadyRegisteredCommand(makeRequest(guild.getJDA(), Route.get(String.format("applications/%s/guilds/%s/commands", guild.getJDA().getSelfUser().getId(), guild.getId())).compile(), null));
+    public static List<ApplicationCommand.CommandData> getAlreadyRegisteredCommand(JDA jda, long guildId) {
+        return getAlreadyRegisteredCommand(makeRequest(jda, Route.get(String.format("applications/%s/guilds/%s/commands", jda.getSelfUser().getId(), guildId)).compile(), null));
     }
 
     private static List<ApplicationCommand.CommandData> getAlreadyRegisteredCommand(Response response) {
@@ -74,8 +73,8 @@ public class RequestUtils {
         return response != null && response.code() == 204;
     }
 
-    public static boolean removeCommand(Guild guild, ApplicationCommand.CommandData data) {
-        Response response = makeRequest(guild.getJDA(), Route.delete(String.format("applications/%s/guilds/%s/commands/%s", guild.getJDA().getSelfUser().getId(), guild.getId(), data.getId())).compile(), null);
+    public static boolean removeCommand(JDA jda, long guildId, ApplicationCommand.CommandData data) {
+        Response response = makeRequest(jda, Route.delete(String.format("applications/%s/guilds/%s/commands/%s", jda.getSelfUser().getId(), guildId, data.getId())).compile(), null);
         return response != null && response.code() == 204;
     }
 
@@ -85,9 +84,9 @@ public class RequestUtils {
         return response != null && response.code() == 201;
     }
 
-    public static boolean addCommand(Guild guild, ApplicationCommand.CommandData data) {
+    public static boolean addCommand(JDA jda, long guildId, ApplicationCommand.CommandData data) {
         String content = data.toJson();
-        Response response = makeRequest(guild.getJDA(), Route.post(String.format("applications/%s/guilds/%s/commands", guild.getJDA().getSelfUser().getId(), guild.getId())).compile(), RequestBody.create(MediaType.get("application/json"), content));
+        Response response = makeRequest(jda, Route.post(String.format("applications/%s/guilds/%s/commands", jda.getSelfUser().getId(), guildId)).compile(), RequestBody.create(MediaType.get("application/json"), content));
         return response != null && response.code() == 201;
     }
 

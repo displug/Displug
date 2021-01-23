@@ -48,6 +48,10 @@ public interface Command extends Permissible {
         return false;
     }
 
+    default long forSpecificGuild() {
+        return -1;
+    }
+
     CommandResult execute(CommandContext context) throws Exception;
 
 }

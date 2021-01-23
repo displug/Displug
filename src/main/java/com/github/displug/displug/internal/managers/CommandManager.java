@@ -81,7 +81,11 @@ public class CommandManager extends DManager<String, Command> implements EventLi
         }
         notSync = notSync.stream().filter(Command::isSlashCommand).collect(Collectors.toList());
         for (Command command : notSync) {
-            RequestUtils.addCommand(displug.getJDA(), new ApplicationCommand.CommandData(command));
+            if (command.forSpecificGuild() == -1) {
+                RequestUtils.addCommand(displug.getJDA(), new ApplicationCommand.CommandData(command));
+            } else {
+                RequestUtils.addCommand(displug.getJDA(), command.forSpecificGuild(), new ApplicationCommand.CommandData(command));
+            }
         }
     }
 
