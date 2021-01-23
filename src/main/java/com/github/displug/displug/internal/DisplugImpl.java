@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020,
+ * Copyright (c) 2021,
  * Displug team(https://github.com/orgs/displug/people)
  * and collaborator(https://github.com/displug/Displug/graphs/contributors)
  * All Right Reserved.
@@ -24,7 +24,6 @@ import com.github.displug.displug.api.events.EventListener;
 import com.github.displug.displug.internal.managers.CommandManager;
 import com.github.displug.displug.internal.managers.EventManager;
 import com.github.displug.displug.internal.managers.PluginManager;
-import com.github.displug.displug.internal.modified.JDABuilder;
 import com.github.displug.displug.plugin.Displugin;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.JDAInfo;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.event.Level;
@@ -90,17 +90,21 @@ public class DisplugImpl implements Displug {
 
     private void setupPlugins() {
         pluginManager.loadPlugins();
-        pluginManager.all().forEach(displugin -> {
-            getJDA().getEventManager().handle(new PluginStarted(getJDA(), displugin));
-            displugin.onEnable();
-        });
+        //            getJDA().getEventManager().handle(new PluginStarted(getJDA(), displugin));
+        pluginManager.all().forEach(Displugin::onEnable);
     }
 
     private void setupJDA() {
         List<GatewayIntent> intents = new ArrayList<>();
         pluginManager.all().forEach(plugin -> intents.addAll(Arrays.asList(plugin.getIntents())));
+
+        if (JDAInfo.DISCORD_REST_VERSION < 8) {
+            logger.info("JDA ", JDAInfo.DISCORD_REST_VERSION);
+        }
+
+
         try {
-            jda = new JDABuilder(configuration.bot.token, GatewayIntent.getRaw(intents)).setEventManager(new EventManager()).addEventListeners(commandManager, new EventListener()).setRawEventsEnabled(true).build();
+            jda = JDABuilder.create(configuration.bot.token, intents).setEventManager(new EventManager()).addEventListeners(commandManager, new EventListener()).setRawEventsEnabled(true).build();
             commandManager.syncWithDiscord();
         } catch (LoginException e) {
             ExitCode.JDA_RELATED.exit(logger, e);
